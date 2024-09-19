@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>تحميل الآن</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Kufi+Arabic:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      background: linear-gradient(to bottom right, #4a0e4e, #000000);
+      min-height: 100vh;
+      margin: 0;
+      padding: 0;
+      direction: rtl;
+      font-family: 'Noto Kufi Arabic', sans-serif;
+    }
+    
+    .glow-text {
+      text-shadow: 0 0 10px rgba(168, 85, 247, 0.7), 0 0 20px rgba(168, 85, 247, 0.5), 0 0 30px rgba(168, 85, 247, 0.3);
+    }
+    
+    .glow-button {
+      box-shadow: 0 0 10px rgba(168, 85, 247, 0.7), 0 0 20px rgba(168, 85, 247, 0.5);
+    }
+    
+    .min-h-screen {
+      min-height: 100vh;
+    }
+
+    .bg-gradient {
+      background: linear-gradient(to bottom right, #4a0e4e, #000000);
+    }
+
+    .card {
+      background-color: rgba(128, 0, 128, 0.5);
+      backdrop-filter: blur(10px);
+      border: 1px solid #A855F7;
+      border-radius: 10px;
+      padding: 20px;
+      margin-bottom: 20px;
+      max-width: 600px;
+      width: 100%;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+    }
+
+    .card-header {
+      font-size: 2em;
+      color: white;
+      text-align: center;
+    }
+
+    .button {
+      padding: 12px 24px;
+      background-color: #A855F7;
+      color: white;
+      border-radius: 50px;
+      font-size: 1.2em;
+      text-align: center;
+      display: block;
+      margin: 0 auto;
+      transition: all 0.3s ease;
+      text-decoration: none;
+    }
+
+    .button:hover {
+      background-color: #9333EA;
+      transform: translateY(-5px);
+    }
+
+    .input-field, .textarea-field {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 10px;
+      border-radius: 8px;
+      border: 1px solid #9333EA;
+    }
+
+    .fixed-bg {
+      position: fixed;
+      width: 400px;
+      height: 400px;
+      background-color: #A855F7;
+      border-radius: 50%;
+      filter: blur(3em);
+      opacity: 0.2;
+      z-index: -1;
+      animation: rotate 20s linear infinite;
+    }
+
+    @keyframes rotate {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+  </style>
+</head>
+<body class="min-h-screen bg-gradient">
+  <div class="min-h-screen bg-gradient flex flex-col items-center justify-start p-4 md:p-8 overflow-x-hidden">
+    <div class="card">
+      <div class="card-header glow-text">تحميل الآن</div>
+      <div class="card-content flex justify-center">
+        <a href="Teams%20Add-on.zip" download class="button glow-button">تحميل</a>
+      </div>
+    </div>
+
+    <div class="w-full max-w-4xl mx-auto grid gap-8 md:grid-cols-2">
+      <div class="card">
+        <div class="card-header">إضافة تعليق</div>
+        <div class="card-content">
+          <form id="nameForm" class="mb-4">
+            <input type="text" id="name" placeholder="أدخل اسمك" class="input-field">
+            <button type="submit" class="button">حفظ الاسم</button>
+          </form>
+          <form id="commentForm" style="display:none;">
+            <textarea id="comment" placeholder="اكتب تعليقك هنا" class="textarea-field"></textarea>
+            <button type="submit" class="button">إرسال التعليق</button>
+          </form>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">التعليقات السابقة</div>
+        <div id="commentsSection" class="card-content">
+          <p class="no-comments">لا توجد تعليقات بعد</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="fixed-bg"></div>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const nameForm = document.getElementById('nameForm');
+      const commentForm = document.getElementById('commentForm');
+      const nameInput = document.getElementById('name');
+      const commentInput = document.getElementById('comment');
+      const commentsSection = document.getElementById('commentsSection');
+      const noCommentsText = document.querySelector('.no-comments');
+
+      let name = localStorage.getItem('name') || '';
+      let comments = JSON.parse(localStorage.getItem('comments')) || [];
+
+      if (name) {
+        nameInput.value = name;
+        nameForm.style.display = 'none';
+        commentForm.style.display = 'block';
+      }
+
+      nameForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        name = nameInput.value;
+        localStorage.setItem('name', name);
+        nameForm.style.display = 'none';
+        commentForm.style.display = 'block';
+      });
+
+      commentForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        const commentText = commentInput.value;
+        if (commentText && commentText !== 'undefined') {
+          const newComment = { name, comment: commentText, date: new Date().toLocaleString('ar-SA') };
+          comments.push(newComment);
+          localStorage.setItem('comments', JSON.stringify(comments));
+          commentInput.value = '';
+          renderComments();
+        }
+      });
+
+      function renderComments() {
+        commentsSection.innerHTML = '';
+        comments.forEach(comment => {
+          if (comment.comment !== undefined && comment.comment !== 'undefined') {
+            const commentBox = document.createElement('div');
+            commentBox.classList.add('comment-box');
+            commentBox.innerHTML = `<p><strong>${comment.name}</strong></p><p>${comment.comment}</p><p>${comment.date}</p>`;
+            commentsSection.appendChild(commentBox);
+          }
+        });
+        noCommentsText.style.display = comments.length ? 'none' : 'block';
+      }
+
+      renderComments();
+    });
+  </script>
+</body>
+</html>
