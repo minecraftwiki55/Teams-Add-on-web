@@ -115,11 +115,8 @@
       <div class="card">
         <div class="card-header">إضافة تعليق</div>
         <div class="card-content">
-          <form id="nameForm" class="mb-4">
+          <form id="commentForm">
             <input type="text" id="name" placeholder="أدخل اسمك" class="input-field">
-            <button type="submit" class="button">حفظ الاسم</button>
-          </form>
-          <form id="commentForm" style="display:none;">
             <textarea id="comment" placeholder="اكتب تعليقك هنا" class="textarea-field"></textarea>
             <button type="submit" class="button">إرسال التعليق</button>
           </form>
@@ -139,42 +136,16 @@
 
   <script>
     document.addEventListener('DOMContentLoaded', function() {
-      const nameForm = document.getElementById('nameForm');
       const commentForm = document.getElementById('commentForm');
       const nameInput = document.getElementById('name');
       const commentInput = document.getElementById('comment');
       const commentsSection = document.getElementById('commentsSection');
       const noCommentsText = document.querySelector('.no-comments');
 
-      let name = localStorage.getItem('name') || '';
-      let comments = JSON.parse(localStorage.getItem('comments')) || [];
+      // Load comments from sessionStorage
+      let comments = JSON.parse(sessionStorage.getItem('comments')) || [];
 
-      if (name) {
-        nameInput.value = name;
-        nameForm.style.display = 'none';
-        commentForm.style.display = 'block';
-      }
-
-      nameForm.addEventListener('submit', function(e) {
-        e.preventDefault();
-        name = nameInput.value;
-        localStorage.setItem('name', name);
-        nameForm.style.display = 'none';
-        commentForm.style.display = 'block';
-      });
-
-      commentForm.addEventListener('submit', function(e) {
-        e.preventDefault();
-        const commentText = commentInput.value;
-        if (commentText && commentText !== 'undefined') {
-          const newComment = { name, comment: commentText, date: new Date().toLocaleString('ar-SA') };
-          comments.push(newComment);
-          localStorage.setItem('comments', JSON.stringify(comments));
-          commentInput.value = '';
-          renderComments();
-        }
-      });
-
+      // Render comments on page load
       function renderComments() {
         commentsSection.innerHTML = '';
         comments.forEach(comment => {
@@ -188,6 +159,25 @@
         noCommentsText.style.display = comments.length ? 'none' : 'block';
       }
 
+      // Handle form submission
+      commentForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        const name = nameInput.value.trim();
+        const commentText = commentInput.value.trim();
+        if (name && commentText) {
+          const newComment = {
+            name,
+            comment: commentText,
+            date: new Date().toLocaleString('ar-SA')
+          };
+          comments.push(newComment);
+          sessionStorage.setItem('comments', JSON.stringify(comments));
+          commentInput.value = '';
+          renderComments();
+        }
+      });
+
+      // Initial render of comments
       renderComments();
     });
   </script>
