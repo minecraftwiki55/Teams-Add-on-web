@@ -145,8 +145,8 @@
 
       commentForm.addEventListener('submit', function(e) {
         e.preventDefault();
-        const commentText = commentInput.value;
-        if (commentText && commentText !== 'undefined') {
+        const commentText = commentInput.value.trim();
+        if (commentText) {
           const newComment = {
             name,
             comment: commentText,
@@ -161,7 +161,7 @@
       function renderComments(comments) {
         commentsSection.innerHTML = '';
         comments.forEach(comment => {
-          if (comment.comment !== undefined && comment.comment !== 'undefined') {
+          if (comment.comment) {
             const commentBox = document.createElement('div');
             commentBox.classList.add('comment-box');
             commentBox.innerHTML = `<p><strong>${comment.name}</strong></p><p>${comment.comment}</p><p>${comment.date}</p>`;
@@ -179,16 +179,6 @@
         });
         renderComments(comments);
       });
-
-      setInterval(() => {
-        onValue(commentsRef, snapshot => {
-          const comments = [];
-          snapshot.forEach(childSnapshot => {
-            comments.push(childSnapshot.val());
-          });
-          renderComments(comments);
-        });
-      }, 3000);
     });
   </script>
 </head>
