@@ -101,6 +101,96 @@
       to { transform: rotate(360deg); }
     }
   </style>
+  <!-- Firebase App (核心) SDK -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-app.js";
+    import { getDatabase, ref, set, onValue, push } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-database.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyBT_N99hgdY6Q5Os4P3cVzaWP445WAgGFw",
+      authDomain: "account-407a9.firebaseapp.com",
+      projectId: "account-407a9",
+      storageBucket: "account-407a9.appspot.com",
+      messagingSenderId: "476571075670",
+      appId: "1:476571075670:web:c814bb0aafec86f35067f7",
+      measurementId: "G-PN875VB98Q"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const database = getDatabase(app);
+
+    document.addEventListener('DOMContentLoaded', function() {
+      const nameForm = document.getElementById('nameForm');
+      const commentForm = document.getElementById('commentForm');
+      const nameInput = document.getElementById('name');
+      const commentInput = document.getElementById('comment');
+      const commentsSection = document.getElementById('commentsSection');
+      const noCommentsText = document.querySelector('.no-comments');
+
+      let name = localStorage.getItem('name') || '';
+
+      if (name) {
+        nameInput.value = name;
+        nameForm.style.display = 'none';
+        commentForm.style.display = 'block';
+      }
+
+      nameForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        name = nameInput.value;
+        localStorage.setItem('name', name);
+        nameForm.style.display = 'none';
+        commentForm.style.display = 'block';
+      });
+
+      commentForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        const commentText = commentInput.value;
+        if (commentText && commentText !== 'undefined') {
+          const newComment = {
+            name,
+            comment: commentText,
+            date: new Date().toLocaleString('ar-SA')
+          };
+          const commentsRef = ref(database, 'comments');
+          push(commentsRef, newComment);
+          commentInput.value = '';
+        }
+      });
+
+      function renderComments(comments) {
+        commentsSection.innerHTML = '';
+        comments.forEach(comment => {
+          if (comment.comment !== undefined && comment.comment !== 'undefined') {
+            const commentBox = document.createElement('div');
+            commentBox.classList.add('comment-box');
+            commentBox.innerHTML = `<p><strong>${comment.name}</strong></p><p>${comment.comment}</p><p>${comment.date}</p>`;
+            commentsSection.appendChild(commentBox);
+          }
+        });
+        noCommentsText.style.display = comments.length ? 'none' : 'block';
+      }
+
+      const commentsRef = ref(database, 'comments');
+      onValue(commentsRef, snapshot => {
+        const comments = [];
+        snapshot.forEach(childSnapshot => {
+          comments.push(childSnapshot.val());
+        });
+        renderComments(comments);
+      });
+
+      setInterval(() => {
+        onValue(commentsRef, snapshot => {
+          const comments = [];
+          snapshot.forEach(childSnapshot => {
+            comments.push(childSnapshot.val());
+          });
+          renderComments(comments);
+        });
+      }, 3000);
+    });
+  </script>
 </head>
 <body class="min-h-screen bg-gradient">
   <div class="min-h-screen bg-gradient flex flex-col items-center justify-start p-4 md:p-8 overflow-x-hidden">
@@ -115,8 +205,11 @@
       <div class="card">
         <div class="card-header">إضافة تعليق</div>
         <div class="card-content">
-          <form id="commentForm">
+          <form id="nameForm" class="mb-4">
             <input type="text" id="name" placeholder="أدخل اسمك" class="input-field">
+            <button type="submit" class="button">حفظ الاسم</button>
+          </form>
+          <form id="commentForm" style="display:none;">
             <textarea id="comment" placeholder="اكتب تعليقك هنا" class="textarea-field"></textarea>
             <button type="submit" class="button">إرسال التعليق</button>
           </form>
@@ -133,53 +226,5 @@
 
     <div class="fixed-bg"></div>
   </div>
-
-  <script>
-    document.addEventListener('DOMContentLoaded', function() {
-      const commentForm = document.getElementById('commentForm');
-      const nameInput = document.getElementById('name');
-      const commentInput = document.getElementById('comment');
-      const commentsSection = document.getElementById('commentsSection');
-      const noCommentsText = document.querySelector('.no-comments');
-
-      // Load comments from sessionStorage
-      let comments = JSON.parse(sessionStorage.getItem('comments')) || [];
-
-      // Render comments on page load
-      function renderComments() {
-        commentsSection.innerHTML = '';
-        comments.forEach(comment => {
-          if (comment.comment !== undefined && comment.comment !== 'undefined') {
-            const commentBox = document.createElement('div');
-            commentBox.classList.add('comment-box');
-            commentBox.innerHTML = `<p><strong>${comment.name}</strong></p><p>${comment.comment}</p><p>${comment.date}</p>`;
-            commentsSection.appendChild(commentBox);
-          }
-        });
-        noCommentsText.style.display = comments.length ? 'none' : 'block';
-      }
-
-      // Handle form submission
-      commentForm.addEventListener('submit', function(e) {
-        e.preventDefault();
-        const name = nameInput.value.trim();
-        const commentText = commentInput.value.trim();
-        if (name && commentText) {
-          const newComment = {
-            name,
-            comment: commentText,
-            date: new Date().toLocaleString('ar-SA')
-          };
-          comments.push(newComment);
-          sessionStorage.setItem('comments', JSON.stringify(comments));
-          commentInput.value = '';
-          renderComments();
-        }
-      });
-
-      // Initial render of comments
-      renderComments();
-    });
-  </script>
 </body>
 </html>
