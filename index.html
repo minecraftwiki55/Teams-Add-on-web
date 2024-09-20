@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="ar">
 <head>
@@ -67,6 +68,7 @@
       transform: translateY(-5px);
     }
 
+    /* الكود الجديد لمنع التوهج الأزرق عند التركيز على الزر */
     .button:focus {
       outline: none;
       box-shadow: none;
@@ -105,12 +107,8 @@
       from { transform: rotate(0deg); }
       to { transform: rotate(360deg); }
     }
-
-    /* إخفاء جميع الصور من الصفحة */
-    img {
-      display: none !important;
-    }
   </style>
+  <!-- Firebase App (core) SDK -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-app.js";
     import { getDatabase, ref, set, onValue, push } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-database.js";
@@ -169,15 +167,14 @@
 
       function renderComments(comments) {
         commentsSection.innerHTML = '';
-        const disallowedTagsRegex = /<[^>]*(img|button)[^>]*>/gi; // تعبير للتحقق من وجود img أو button
-        const codeRegex = /<[^>]*>/g; // تعبير للتحقق من وجود كود HTML أو JavaScript
         comments.forEach(comment => {
-          if (comment.comment && !codeRegex.test(comment.comment) && !disallowedTagsRegex.test(comment.comment)) { // تحقق من عدم وجود كود أو img أو button
+          if (comment.comment) {
             const commentBox = document.createElement('div');
             commentBox.classList.add('comment-box');
             commentBox.innerHTML = `<p><strong>${comment.name}</strong></p><p>${comment.comment}</p><p>${comment.date}</p>`;
             commentsSection.appendChild(commentBox);
-          });
+          }
+        });
         noCommentsText.style.display = comments.length ? 'none' : 'block';
       }
 
@@ -192,22 +189,39 @@
     });
   </script>
 </head>
-<body>
-  <div class="fixed-bg"></div>
-  <div class="min-h-screen bg-gradient flex flex-col items-center justify-center">
+<body class="min-h-screen bg-gradient">
+  <div class="min-h-screen bg-gradient flex flex-col items-center justify-start p-4 md:p-8 overflow-x-hidden">
     <div class="card">
-      <h1 class="card-header glow-text">أهلاً بك</h1>
-      <form id="nameForm">
-        <input type="text" id="name" class="input-field" placeholder="أدخل اسمك" required>
-        <button type="submit" class="button glow-button">حفظ الاسم</button>
-      </form>
-      <form id="commentForm" style="display: none;">
-        <textarea id="comment" class="textarea-field" rows="4" placeholder="أدخل تعليقك"></textarea>
-        <button type="submit" class="button glow-button">إرسال</button>
-      </form>
-      <div id="commentsSection" class="mt-4"></div>
-      <p class="no-comments" style="display: none;">لا توجد تعليقات حتى الآن.</p>
+      <div class="card-header glow-text">تحميل الآن</div>
+      <div class="card-content flex justify-center">
+        <a href="Teams%20Add-on.zip" download class="button glow-button">تحميل</a>
+      </div>
     </div>
+
+    <div class="w-full max-w-4xl mx-auto grid gap-8 md:grid-cols-2">
+      <div class="card">
+        <div class="card-header">إضافة تعليق</div>
+        <div class="card-content">
+          <form id="nameForm" class="mb-4">
+            <input type="text" id="name" placeholder="أدخل اسمك" class="input-field">
+            <button type="submit" class="button">حفظ الاسم</button>
+          </form>
+          <form id="commentForm" style="display:none;">
+            <textarea id="comment" placeholder="اكتب تعليقك هنا" class="textarea-field"></textarea>
+            <button type="submit" class="button">إرسال التعليق</button>
+          </form>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">التعليقات السابقة</div>
+        <div id="commentsSection" class="card-content">
+          <p class="no-comments">لا توجد تعليقات بعد</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="fixed-bg"></div>
   </div>
 </body>
-</html> 
+</html>
