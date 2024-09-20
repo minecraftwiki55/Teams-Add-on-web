@@ -67,7 +67,6 @@
       transform: translateY(-5px);
     }
 
-    /* الكود الجديد لمنع التوهج الأزرق عند التركيز على الزر */
     .button:focus {
       outline: none;
       box-shadow: none;
@@ -107,7 +106,6 @@
       to { transform: rotate(360deg); }
     }
   </style>
-  <!-- Firebase App (core) SDK -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-app.js";
     import { getDatabase, ref, set, onValue, push } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-database.js";
@@ -166,8 +164,9 @@
 
       function renderComments(comments) {
         commentsSection.innerHTML = '';
+        const codeRegex = /<[^>]*>/g; // تعبير للتحقق من وجود كود HTML أو JavaScript
         comments.forEach(comment => {
-          if (comment.comment) {
+          if (comment.comment && !codeRegex.test(comment.comment)) { // تحقق من عدم وجود كود
             const commentBox = document.createElement('div');
             commentBox.classList.add('comment-box');
             commentBox.innerHTML = `<p><strong>${comment.name}</strong></p><p>${comment.comment}</p><p>${comment.date}</p>`;
